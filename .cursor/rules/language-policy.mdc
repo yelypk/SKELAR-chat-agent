@@ -1,0 +1,25 @@
+---
+description: Language policy (UA chat, EN artifacts)
+alwaysApply: true
+---
+
+# Language Policy
+
+## Chat language
+
+- All chat responses to the user MUST be in **Ukrainian**.
+
+## Repository artifacts language
+
+The following artifacts MUST be written in **English**:
+
+- Documentation: `README.md`, `docs/**`, `CONTRIBUTING.md` (if present)
+- LLM prompts: `prompts/**`
+- Intent cards: `scenarios/intents/**`
+- Code comments and docstrings
+- Git commit messages
+
+## Notes
+
+- Do not mix languages within a single artifact.
+- Keep prompts free of control-flow logic; control-flow must live in Python code (see existing prompt integrity rules).
