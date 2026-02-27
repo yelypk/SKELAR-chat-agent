@@ -1,0 +1,50 @@
+---
+description: Intent cards schema and usage rules
+globs:
+  - "scenarios/intents/**/*.yaml"
+  - "scenarios/intents/**/*.yml"
+alwaysApply: true
+---
+
+# Intent Card Rules
+
+Intent cards define the canonical support knowledge.
+They are NOT free-form documents.
+
+Each intent card MUST include:
+
+- intent_id (string, unique)
+- title (short human-readable)
+- description (1–2 sentences)
+- symptoms (list of observable user symptoms)
+- hidden_root_causes (list, NEVER shown to support agent)
+- required_questions (list of questions agent should ask)
+- resolution_paths (list of valid resolution strategies)
+- forbidden_actions (list of incorrect or risky actions)
+- escalation_rules (conditions when escalation is allowed)
+- common_agent_mistakes (allowed mistake types for this intent)
+
+Rules:
+
+- Support agent sees ONLY:
+  - symptoms
+  - required_questions
+  - resolution_paths
+  - forbidden_actions
+  - escalation_rules
+
+- Customer simulator sees:
+  - hidden_root_causes
+  - symptoms
+  - mapping of answers → questions
+
+- Judge sees the FULL intent card.
+
+Intent cards must NOT:
+- Encode dialogue flow
+- Contain prompt text
+- Include emotional or stylistic instructions
+- Reference specific LLM behavior
+
+If an intent card is missing required fields,
+AI assistants must STOP and ask to fix the schema.

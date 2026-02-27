@@ -1,0 +1,33 @@
+intent_id: thresholds
+title: Payout threshold not met
+description: The user cannot withdraw because their balance is below the minimum payout threshold for the selected payment method.
+symptoms:
+  - Why can’t I withdraw my earnings yet?
+  - It says I don’t meet the minimum amount for payout.
+  - What is the payout threshold for PayPal/Payoneer?
+  - What is the minimum for wire transfer?
+  - My income looks lower than expected today.
+hidden_root_causes:
+  - The user’s balance is below the threshold for the chosen payout method ($25 for PayPal/Payoneer; wire transfer often ~ $160).
+  - The user is looking at earnings before the daily update time (income updates daily at 1:00 UTC).
+  - The user is mixing currencies or misreading “available” vs “current” earnings in the dashboard.
+required_questions:
+  - Which payout method are you trying to use (PayPal, Payoneer, or wire transfer)?
+  - What is your current available earnings amount on the Income dashboard?
+  - When did you last check the dashboard (and what timezone are you in)?
+resolution_paths:
+  - Explain the thresholds: $25 minimum for PayPal/Payoneer; wire transfer threshold varies by country/bank and is usually around $160.
+  - If the threshold is not met, advise continuing to earn until the minimum is reached, then submit a payout request.
+  - Remind that earnings are updated daily at 1:00 UTC; if the user is checking before that, ask them to re-check after the update.
+  - If the user needs a wire transfer, advise discussing it with their editor or support because eligibility can depend on country and amount.
+forbidden_actions:
+  - Tell the user to fabricate payout details or split accounts to bypass thresholds.
+  - Suggest withdrawing more frequently than allowed to “collect smaller amounts”.
+  - Provide bank-transfer eligibility guarantees without reviewing country/amount constraints.
+escalation_rules:
+  - Escalate if the user appears to be above the threshold but the system still blocks payout creation.
+  - Escalate if earnings/available balance do not update for multiple days beyond the stated update schedule.
+common_agent_mistakes:
+  - incorrect_info
+  - no_resolution
+  - unnecessary_escalation

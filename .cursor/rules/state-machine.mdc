@@ -1,0 +1,21 @@
+---
+description: State machine and stop-condition rules
+globs:
+  - "engine/**/*.py"
+alwaysApply: true
+---
+
+# State Machine Rules
+
+Dialogue loop must include:
+
+- max_turns limit
+- resolved flag
+- escalation flag
+- customer_quit flag
+- agent_quit flag
+- deadlock detection
+
+Never create infinite loops.
+
+All state transitions must be explicit and visible in code.

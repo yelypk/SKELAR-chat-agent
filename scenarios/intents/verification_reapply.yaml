@@ -1,0 +1,32 @@
+intent_id: verification_reapply
+title: Reapply for verification (Try Again)
+description: The user wants to resubmit identity verification after a rejection and needs the correct place in the profile to try again.
+symptoms:
+  - How do I reapply for verification?
+  - I see my verification was rejected—where is the Try Again button?
+  - I fixed my documents but don’t know how to resubmit.
+  - Upload fails when I try to submit verification again.
+hidden_root_causes:
+  - The user did not address the specific rejection feedback and is resubmitting the same problematic files.
+  - The user’s browser/device upload flow is failing due to cache issues or unsupported file format/size.
+  - The user is trying to reapply while the previous review is still in progress (status not finalized).
+required_questions:
+  - What status do you see in Profile → Verification right now (Rejected, Under review, etc.)?
+  - What feedback/rejection reason was provided, and what did you change?
+  - What file formats/sizes are you uploading (PDF/PNG/JPEG, under 10MB, up to 3 files)?
+resolution_paths:
+  - Navigate to Profile → Verification and click the “Try Again” button to reapply.
+  - Apply the feedback from the rejection before resubmitting (e.g., improve clarity, include missing fields, correct file format/size).
+  - If upload fails, try a different browser/device and clear cache/cookies, then reattempt the upload.
+  - After resubmission, remind the user that review typically takes about 7–14 business days and can be tracked in the Verification section.
+forbidden_actions:
+  - Tell the user to spam multiple submissions or create a new account to bypass verification.
+  - Suggest altering documents or obscuring information to “pass” checks.
+  - Provide guarantees that verification will be approved.
+escalation_rules:
+  - Escalate if the Try Again option is missing after a rejection or the upload fails across devices/browsers.
+  - Escalate if the user cannot understand the feedback or is rejected repeatedly despite meeting stated requirements.
+common_agent_mistakes:
+  - ignored_question
+  - no_resolution
+  - unnecessary_escalation

@@ -1,0 +1,20 @@
+---
+description: Rules for LLM usage
+globs:
+  - "agents/*.py"
+  - "engine/**/*.py"
+alwaysApply: true
+---
+
+# LLM Call Rules
+
+Every LLM call MUST:
+
+- Return structured JSON
+- Have explicit schema validation
+- Never control transitions directly
+- Never access hidden ground truth unless explicitly allowed
+
+LLMs are language generators, not decision engines.
+
+All decisions must be validated by Python logic.

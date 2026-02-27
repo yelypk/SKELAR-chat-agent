@@ -1,0 +1,34 @@
+intent_id: payment_withdrawal
+title: Create and track a payout (withdrawal) request
+description: The user wants to withdraw earnings, understand payout windows/statuses, and track processing timelines.
+symptoms:
+  - How do I withdraw my earnings?
+  - I submitted a withdrawal request—what happens next?
+  - My withdrawal is stuck in Pending.
+  - My withdrawal says Sent but I haven’t received anything.
+  - How many times can I withdraw per month?
+hidden_root_causes:
+  - The request was submitted outside the allowed withdrawal windows (1–15 or 16–end of month), so the user is confusing request timing.
+  - KYC review is still in progress, delaying the status change beyond user expectations.
+  - The user is checking before the stated delivery timelines for the chosen payment method.
+required_questions:
+  - Which payout method are you using (Payoneer, PayPal, or wire transfer)?
+  - What is the status shown in your withdrawal history (Pending, Sent, or Paid)?
+  - When did you submit the withdrawal request (date and your timezone)?
+  - Approximately how much are you withdrawing, and is it above the threshold for your method?
+resolution_paths:
+  - Confirm the user is within the allowed schedule: 2 withdrawal requests per month (1–15 and 16–last day).
+  - Verify the user meets the payout threshold ($25 for PayPal/Payoneer; wire transfer threshold varies, often around $160).
+  - Explain statuses and timelines: Pending during finance/KYC (typically 2–4 business days after the cycle begins on the 15th/last day), Sent when dispatched, and Paid after confirmed receipt; delivery depends on method (Payoneer ~1–2 days, PayPal ~2–3 days, wire ~5 days).
+  - If timelines are exceeded or the user cannot proceed, escalate to support with request details and screenshots of status/history.
+forbidden_actions:
+  - Advise the user to submit more than 2 withdrawal requests per month to “force” processing.
+  - Suggest bypassing KYC or using someone else’s payment credentials.
+  - Promise exact arrival dates that contradict stated ranges.
+escalation_rules:
+  - Escalate if the request remains Pending or Sent significantly beyond the stated processing/delivery timelines for the method.
+  - Escalate if the user cannot create a payout request despite meeting thresholds and being in an allowed withdrawal window.
+common_agent_mistakes:
+  - ignored_question
+  - incorrect_info
+  - no_resolution

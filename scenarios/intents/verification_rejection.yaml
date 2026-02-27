@@ -1,0 +1,34 @@
+intent_id: verification_rejection
+title: Identity verification rejected
+description: The user’s document verification was rejected and they need to understand requirements, fix submission issues, and unblock contracts and payouts.
+symptoms:
+  - My verification was rejected.
+  - I can’t apply for a contract because verification failed.
+  - I can’t withdraw earnings because my verification is rejected.
+  - The system says my documents don’t meet requirements.
+  - Verification is taking too long and then got rejected.
+hidden_root_causes:
+  - The submitted document is expired, cropped, or missing required fields (name, DOB, ID number, expiration date).
+  - Images are blurry/low-contrast or have glare, making details illegible.
+  - Files exceed format/size/count limits (wrong format, over 10MB, more than 3 files).
+required_questions:
+  - What rejection feedback/reason did you receive (as shown in the Verification section or email)?
+  - Which document did you upload (passport or government-issued ID)?
+  - What file formats did you submit and what were the file sizes/how many files?
+  - Are all required fields clearly visible (full name, photo, DOB, ID number, expiration date if applicable)?
+resolution_paths:
+  - Use the rejection feedback to correct the submission (fix what was requested in the feedback).
+  - Re-submit clear, legible photos/scans in allowed formats (PDF/PNG/JPEG), under 10MB, up to 3 files.
+  - Ensure the document is a valid passport or ID issued by a legal state authority and that required details are visible (DOB, photo, full legal name, ID/passport number, expiration date if applicable).
+  - Remind that rejected verification blocks contract application and payouts; after resubmission, review can take about 7–14 business days and status can be tracked in Profile → Verification.
+forbidden_actions:
+  - Recommend submitting non-government documents (driver’s license if not accepted, student cards, etc.) or edited/altered images.
+  - Advise the user to proceed with payouts/contracts despite rejected verification.
+  - Ask the user to share full document scans in chat if the proper flow is platform upload.
+escalation_rules:
+  - Escalate if the user is repeatedly rejected despite following the feedback and meeting format/clarity requirements.
+  - Escalate if verification review significantly exceeds the stated 7–14 business days with no actionable feedback.
+common_agent_mistakes:
+  - ignored_question
+  - incorrect_info
+  - no_resolution

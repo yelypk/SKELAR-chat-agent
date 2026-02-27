@@ -1,0 +1,38 @@
+---
+description: Prompt integrity and role separation rules
+globs:
+  - "prompts/**/*.md"
+alwaysApply: true
+---
+
+# Prompt Integrity Rules
+
+Prompts define ROLE BEHAVIOR only.
+
+Prompts must NOT:
+
+- Contain control flow logic
+- Define state transitions
+- Access hidden system state
+- Override orchestrator decisions
+
+Each prompt must:
+
+- Define clear role identity
+- Specify JSON output schema
+- Separate internal thoughts from visible utterance
+- Avoid leakage of hidden scenario data
+
+Customer prompt:
+- Knows root cause
+- Reveals information only if asked
+
+Support prompt:
+- Does NOT know root cause
+- Must rely on intent card
+- Can apply injected mistakes naturally
+
+Judge prompt:
+- Has access to full transcript
+- Evaluates strictly via rubric
+- Returns deterministic structured output

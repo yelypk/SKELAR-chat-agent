@@ -1,0 +1,34 @@
+intent_id: withdraw_fails
+title: Withdrawal rejected or payout details incorrect
+description: The user’s payout request failed (rejected) or they entered incorrect payout information and needs next steps compliant with KYC rules.
+symptoms:
+  - My payout request was rejected.
+  - I made a mistake in my payment information—can I fix it?
+  - It says KYC failed.
+  - I used PayPal/Payoneer but it still didn’t go through.
+  - The platform mentions fraudulent activity.
+hidden_root_causes:
+  - KYC failed because the payment account credentials are not in the author’s legal name.
+  - The user entered incorrect payout details (email/name/address/bank fields) leading to rejection.
+  - The request was flagged for suspicious/fraudulent activity, requiring compliance review.
+required_questions:
+  - What rejection reason is shown (or what exactly does it say)?
+  - Which payout method did you use (PayPal, Payoneer, or wire transfer)?
+  - Are the payout credentials registered in your own legal name?
+  - Which specific payout fields might be incorrect (email, name, address, bank details)?
+resolution_paths:
+  - If payout information was entered incorrectly, instruct the user to contact the payout support email listed in the Help Center to correct details (as required by the process).
+  - If the rejection reason is KYC failed, ensure the user uses only their own payment credentials (payment account registered in their name) and provide the correct details to support for review.
+  - If the rejection mentions fraud/compliance, advise the user to wait for and respond to the compliance team’s notice and provide requested information via official channels.
+  - Recommend double-checking all entered payment credentials before submitting the next request.
+forbidden_actions:
+  - Advise using a friend’s/relative’s PayPal or Payoneer account to “pass” KYC.
+  - Suggest manipulating statistics/traffic or bypassing compliance checks.
+  - Ask the user to send full sensitive banking details in chat if the process requires email/support handling.
+escalation_rules:
+  - Escalate immediately if the rejection reason indicates fraud/compliance action or the user received a formal notice.
+  - Escalate if the user cannot resolve incorrect payout details through the standard support contact path.
+common_agent_mistakes:
+  - incorrect_info
+  - rude_tone
+  - no_resolution

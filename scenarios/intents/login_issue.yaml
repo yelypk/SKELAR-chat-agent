@@ -1,0 +1,35 @@
+intent_id: login_issue
+title: Can't log in to Writer account
+description: The user cannot access their AlphaNovel Writer account and needs help troubleshooting the login flow and environment issues.
+symptoms:
+  - I can’t log in to my Writer account.
+  - It says something went wrong when I sign in.
+  - I’m stuck on the sign-in page / it keeps loading.
+  - Login works on one device but not on this one.
+  - I get an error message when trying to log in.
+hidden_root_causes:
+  - The user is using the wrong sign-in method for the account (email/password vs Google sign-in), so credentials never match.
+  - Browser storage (cookies/local storage) is corrupted or blocked (privacy extensions, strict tracking prevention), preventing session creation.
+  - The account/session is temporarily locked due to repeated failed attempts or a security flag.
+required_questions:
+  - Which sign-in method did you use to create the account (email/password or Google)?
+  - What device and browser are you using right now?
+  - What is the exact error message, and can you share a screenshot?
+  - Have you tried logging in from another device or network?
+  - Did clearing cache/cookies change anything?
+resolution_paths:
+  - Confirm the user is choosing the same sign-in method they originally registered with.
+  - On mobile, restart the phone; also try logging in from a different device to isolate whether the issue is device-specific.
+  - Clear browser cache and cookies, then retry; alternatively try a different browser and/or internet connection.
+  - If the issue persists after these steps, ask the user to email support with the error screenshot and details (as instructed in the Help Center).
+forbidden_actions:
+  - Ask the user to share their password or one-time codes.
+  - Instruct the user to create a second account as a workaround.
+  - Claim you can manually reset/override authentication without the official recovery process.
+escalation_rules:
+  - Escalate if login still fails after trying alternate device/browser/connection and clearing cache/cookies.
+  - Escalate immediately if the user reports a suspected account lock, security warning, or persistent server error with reproducible steps and a screenshot.
+common_agent_mistakes:
+  - ignored_question
+  - incorrect_info
+  - no_resolution

@@ -1,0 +1,34 @@
+intent_id: contract_review
+title: Contract under review or application rejected
+description: The user is waiting on contract review beyond expected timelines or needs to understand a rejection reason and reapply correctly.
+symptoms:
+  - My contract is under review for more than 14 business days.
+  - My contract review is taking more than a month.
+  - My application was rejected—how can I reapply?
+  - I don’t know why my contract was rejected.
+  - I received an approval email—where do I sign?
+hidden_root_causes:
+  - The review is delayed because the team requested additional information via email and the user hasn’t responded or missed it (spam folder).
+  - The application was rejected due to eligibility/content issues or missing prerequisites, and the user needs to correct them before reapplying.
+  - The user is tracking the wrong contract type timeline (MAB Exclusive vs regular timelines).
+required_questions:
+  - Which contract type did you apply for (Non-Exclusive, Regular Exclusive, MAB Exclusive)?
+  - How many business days has it been since you applied?
+  - Have you received any emails requesting additional information (did you check spam/junk)?
+  - What status do you see on the platform (Under review, Rejected, Ready to sign)?
+resolution_paths:
+  - Confirm expected timelines: Non-Exclusive and Regular Exclusive are typically reviewed within ~14 business days; MAB Exclusive can take up to ~1 month.
+  - If review exceeds the expected window, instruct the user to check inbox/spam for requests and provide any requested information promptly.
+  - If status is Rejected, explain they can click the rejected status and use “Try again”; advise reviewing the rejection reason shown on platform or in the email.
+  - If approved, guide them to the Writers platform, click “Ready to sign” for the book, then “Sign Contract” to complete the author signature step.
+forbidden_actions:
+  - Tell the user to submit multiple duplicate applications to speed up review.
+  - Invent rejection reasons not shown in the platform/email and present them as facts.
+  - Promise review completion dates that contradict stated timelines.
+escalation_rules:
+  - Escalate if the review significantly exceeds the stated timeline and there are no emails/status updates to act on.
+  - Escalate if the platform does not show the rejection reason or Try again option, or the signing flow errors after approval.
+common_agent_mistakes:
+  - ignored_question
+  - incorrect_info
+  - no_resolution

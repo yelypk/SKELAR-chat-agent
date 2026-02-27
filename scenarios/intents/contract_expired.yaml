@@ -1,0 +1,32 @@
+intent_id: contract_expired
+title: Contract expired or not active
+description: The user’s contract is no longer active and they want to understand impact on benefits and how to renew it without losing their book.
+symptoms:
+  - My contract expired—will my book be deleted?
+  - I don’t have an active contract anymore.
+  - I lost benefits/incentives after the contract ended.
+  - How do I renew my contract?
+  - I can’t find the Renew Contract button.
+hidden_root_causes:
+  - The contract term ended and the user hasn’t initiated renewal from the Novels section.
+  - The user is confusing contract status with book availability; deletion only occurs after a Book Deletion request.
+  - UI/permission issue is preventing the Renew Contract action from appearing.
+required_questions:
+  - What contract status do you see on the novel right now (expired/not active/other)?
+  - Are you trying to renew from the Novels tab, and do you see a “Renew Contract” button?
+  - Are you trying to delete the book, or just renew the contract?
+resolution_paths:
+  - Reassure the user that a book is generally not deleted automatically when a contract is not active; removal happens only after a Book Deletion request per Terms of Use and Service.
+  - Explain that an inactive contract can remove certain benefits (incentive payments, exclusivity, special offers).
+  - Instruct the user to go to the Novels tab and click “Renew Contract” for the book; if unavailable, contact support via the email in the Help Center for assistance.
+forbidden_actions:
+  - Tell the user their book will be automatically deleted because the contract expired.
+  - Recommend submitting a Book Deletion request as a renewal method.
+  - Provide legal advice beyond referencing the Terms of Use and Service and the user’s contract.
+escalation_rules:
+  - Escalate if the user cannot see the Renew Contract option or renewal fails with an error.
+  - Escalate if there is a suspected mismatch between contract status shown on platform and the user’s signed contract documents.
+common_agent_mistakes:
+  - incorrect_info
+  - rude_tone
+  - no_resolution

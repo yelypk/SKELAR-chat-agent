@@ -1,0 +1,33 @@
+---
+description: Self-play dialogue generation workflow rules
+globs:
+  - "engine/**/*.py"
+  - "agents/*.py"
+alwaysApply: true
+---
+
+# Self-Play Workflow Rules
+
+This project uses controlled self-play:
+
+Customer ↔ Support Agent ↔ Orchestrator ↔ Judge
+
+Rules:
+
+- The orchestrator controls turn order
+- Only one speaker per turn
+- No direct agent-to-agent hidden communication
+- Ground truth is accessible ONLY to customer simulator
+- Support agent must infer intent via dialogue
+
+Turn structure must be:
+
+1. Agent generates structured JSON
+2. Orchestrator validates
+3. Customer generates structured JSON
+4. Orchestrator validates
+5. Repeat until stop condition
+
+Stop conditions must always be checked after each turn.
+
+Never allow free-form infinite conversation.

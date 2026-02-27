@@ -1,0 +1,30 @@
+---
+description: Overall architecture rules for synthetic support simulator
+globs:
+  - "**/*.py"
+alwaysApply: true
+---
+
+# Architecture Rules
+
+This project is a synthetic dialogue simulator for support evaluation.
+
+Core principles:
+
+- LangGraph controls dialogue flow
+- No LLM decides state transitions
+- Dialogue logic is deterministic and code-driven
+- One session = isolated memory
+- No long-term persistence between dialogues
+
+Directory meaning:
+
+- engine/graph → LangGraph nodes
+- engine/state → typed session state
+- engine/orchestrator → stop conditions and loop control
+- agents/ → role logic wrappers
+- scenarios/ → intent cards and personas
+- prompts/ → LLM instructions
+- dataset/ → dataset serialization
+
+Never collapse responsibilities between these layers.

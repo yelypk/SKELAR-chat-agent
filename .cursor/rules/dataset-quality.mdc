@@ -1,0 +1,19 @@
+---
+description: Synthetic dataset quality constraints
+globs:
+  - "dataset/**/*.py"
+alwaysApply: true
+---
+
+# Dataset Rules
+
+Ensure class balance across:
+
+- intents
+- satisfaction labels
+- quality_score
+- mistake types
+
+Avoid repetitive phrasing.
+
+Prefer diversity in persona behavior.
