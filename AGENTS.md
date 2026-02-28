@@ -44,3 +44,4 @@ AI assistants must:
 - Avoid mixing prompt logic with control logic
 - Validate stop conditions
 - Prefer explicit over implicit behavior
+- Consult `docs/ARCHITECTURE.md`, `docs/DATABASE_SCHEMA.md`, and `docs/MODULE_IO.md` before implementing changes

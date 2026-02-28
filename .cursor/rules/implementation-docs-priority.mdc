@@ -1,0 +1,15 @@
+# Implementation Docs Priority
+
+When assisting with this repository, always consult and follow these documents before implementing changes:
+
+- `docs/ARCHITECTURE.md`
+- `docs/DATABASE_SCHEMA.md`
+- `docs/MODULE_IO.md`
+
+Rules:
+
+- Do not introduce code that contradicts those documents.
+- If code and docs diverge, update code and docs together in the same change.
+- For new modules, add/update I/O contracts in `docs/MODULE_IO.md`.
+- For schema changes, update `docs/DATABASE_SCHEMA.md` and matching Alembic migration.
+- For flow/state changes, update `docs/ARCHITECTURE.md` accordingly.
