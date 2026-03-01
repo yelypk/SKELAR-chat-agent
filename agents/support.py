@@ -3,7 +3,9 @@ from __future__ import annotations
 from engine.config import AppConfig
 from engine.state import SupportTurn
 
-from agents.llm import build_chat_client, invoke_json, load_prompt
+from agents.json_protocol import invoke_json
+from agents.prompts import load_prompt
+from agents.providers import build_chat_client
 
 
 class SupportAgent:

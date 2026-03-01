@@ -11,7 +11,8 @@ from agents.support import SupportAgent
 from dataset.db import DatasetWriter
 from dataset.metrics import compute_balance_report
 from engine.config import load_config
-from engine.graph.dialogue_graph import build_dialogue_graph
+from engine.runner import AgentBundle, run_dialogue
+from engine.session import DialogueSession
 from engine.state import DialogueState, TerminationReason
 from scenarios.intent_loader import (
     build_customer_view,
@@ -76,7 +77,7 @@ def run_dialogues(num_dialogues: int, seed: int, print_report: bool = False) -> 
     support = SupportAgent(config)
     customer = CustomerAgent(config)
     judge = JudgeAgent(config)
-    app = build_dialogue_graph(config, support, customer, judge)
+    agents = AgentBundle(support=support, customer=customer, judge=judge)
     writer = DatasetWriter(config.postgres_dsn)
     run_id = str(uuid.uuid4())
 
@@ -86,7 +87,9 @@ def run_dialogues(num_dialogues: int, seed: int, print_report: bool = False) -> 
             seed=seed + idx,
             max_turns=config.max_turns,
         )
-        final_state = app.invoke(state)
+        session = DialogueSession.from_state(state)
+        final_session = run_dialogue(session, agents, config)
+        final_state = final_session.to_state()
         termination_reason = final_state.get("termination_reason") or TerminationReason.MAX_TURNS.value
         dialogue_id = writer.write_dialogue(
             {
