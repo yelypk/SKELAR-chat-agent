@@ -15,7 +15,7 @@ def finalize_turn(
     session: DialogueSession,
     embeddings: Embeddings,
     config: AppConfig,
-) -> DialogueSession:
+) -> None:
     session.resolved = is_resolved(session, embeddings)
     session.max_turns_reached = session.turn_index >= session.max_turns
     session.deadlock_detected = detect_deadlock(
@@ -33,4 +33,3 @@ def finalize_turn(
     session.termination_reason = compute_termination(session)
     session.observed_mistakes = detect_observed_mistakes(session)
     session.dialogue_phase = compute_dialogue_phase(session)
-    return session

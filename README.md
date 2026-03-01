@@ -18,7 +18,8 @@ Real support data is expensive, sensitive, and hard to label consistently. This 
 
 ## Tech stack
 - **Python**
-- **LangGraph / LangChain** orchestration
+- **Deterministic Python runner** orchestration
+- **LangChain** model interfaces
 - **PostgreSQL** for dialogue and evaluation storage
 - **Redis** for local infrastructure
 - **Ollama or OpenAI** as the LLM backend
@@ -70,7 +71,7 @@ python analyze.py --after-dialogue-id <existing-dialogue-uuid>
 ## Project structure
 ```text
 agents/      role-specific LLM wrappers
-engine/      orchestration, state, dialogue graph
+engine/      orchestration, session model, deterministic runner
 scenarios/   support intents and persona generation
 dataset/     database persistence and metrics
 prompts/     role instructions

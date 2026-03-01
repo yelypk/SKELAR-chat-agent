@@ -4,7 +4,7 @@ from engine.session import ConfusionEvent, DialogueSession, TurnRecord
 from engine.state import CustomerTurn, SupportTurn
 
 
-def append_customer_turn(session: DialogueSession, output: CustomerTurn) -> DialogueSession:
+def append_customer_turn(session: DialogueSession, output: CustomerTurn) -> None:
     session.turns.append(
         TurnRecord(
             speaker="customer",
@@ -23,10 +23,7 @@ def append_customer_turn(session: DialogueSession, output: CustomerTurn) -> Dial
                 utterance=output.utterance,
             )
         )
-    return session
-
-
-def append_support_turn(session: DialogueSession, output: SupportTurn) -> DialogueSession:
+def append_support_turn(session: DialogueSession, output: SupportTurn) -> None:
     session.turns.append(
         TurnRecord(
             speaker="support",
@@ -37,14 +34,9 @@ def append_support_turn(session: DialogueSession, output: SupportTurn) -> Dialog
     session.turn_index += 1
     session.asked_questions.extend(output.questions)
     session.support_proposed_actions.append(output.proposed_action)
-    return session
-
-
-def mark_escalated(session: DialogueSession) -> DialogueSession:
+def mark_escalated(session: DialogueSession) -> None:
     session.escalated = True
-    return session
 
 
-def mark_customer_quit(session: DialogueSession) -> DialogueSession:
+def mark_customer_quit(session: DialogueSession) -> None:
     session.customer_quit = True
-    return session

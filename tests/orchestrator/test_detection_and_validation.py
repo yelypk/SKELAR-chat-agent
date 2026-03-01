@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import types
 import unittest
 from typing import Any
 
 from engine.orchestrator.escalation_policy import should_allow_escalation
 from engine.orchestrator.judge_validation import validate_judge_output
 from engine.orchestrator.mistake_detection import detect_observed_mistakes
+from engine.session import DialogueSession, TurnRecord
 
 
 def _base_state() -> dict[str, Any]:
@@ -28,21 +30,52 @@ def _base_state() -> dict[str, Any]:
     }
 
 
+def _base_session() -> DialogueSession:
+    intent = types.SimpleNamespace(resolution_paths=[])
+    persona = types.SimpleNamespace(persona_seed_prompt="", chaos_level="low")
+    support_persona = types.SimpleNamespace(support_persona_seed_prompt="", seniority="junior")
+    return DialogueSession(
+        run_id="run-1",
+        dialogue_id="dlg-1",
+        seed=1,
+        turn_index=1,
+        max_turns=8,
+        intent=intent,  # type: ignore[arg-type]
+        support_view={
+            "required_questions": [],
+            "forbidden_actions": [],
+            "escalation_rules": [],
+        },
+        customer_view={},
+        root_cause="root",
+        persona=persona,  # type: ignore[arg-type]
+        support_persona=support_persona,  # type: ignore[arg-type]
+        dialogue_phase="greeting",
+        entropy_params={},
+        planned_mistakes=[],
+        observed_mistakes=[],
+        turns=[
+            TurnRecord(speaker="customer", utterance="I have an issue", payload={}),
+            TurnRecord(speaker="support", utterance="Let me help", payload={}),
+        ],
+    )
+
+
 class EscalationPolicyTests(unittest.TestCase):
     def test_allows_high_risk_when_no_rules_and_short_dialogue(self) -> None:
-        state = _base_state()
-        state["turns"].append(
-            {
-                "speaker": "customer",
-                "utterance": "This may be fraud with my account",
-                "payload": {},
-            }
+        session = _base_session()
+        session.turns.append(
+            TurnRecord(
+                speaker="customer",
+                utterance="This may be fraud with my account",
+                payload={},
+            )
         )
-        self.assertTrue(should_allow_escalation(state))
+        self.assertTrue(should_allow_escalation(session))
 
     def test_disallows_when_no_rules_short_dialogue_no_risk(self) -> None:
-        state = _base_state()
-        self.assertFalse(should_allow_escalation(state))
+        session = _base_session()
+        self.assertFalse(should_allow_escalation(session))
 
 
 class MistakeDetectionTests(unittest.TestCase):

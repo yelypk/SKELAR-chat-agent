@@ -8,7 +8,7 @@ from engine.state import SupportTurn
 
 
 def _next_planned_mistake(session: DialogueSession) -> str:
-    idx = len([turn for turn in session.turns if turn.speaker == "support"])
+    idx = session.support_turn_count
     if idx >= len(session.planned_mistakes):
         return "none"
     return session.planned_mistakes[idx]
@@ -18,24 +18,10 @@ def build_support_payload(session: DialogueSession) -> dict:
     return {
         "intent_card": session.support_view,
         "support_persona_seed_prompt": session.support_persona.support_persona_seed_prompt,
-        "transcript": [
-            {
-                "speaker": turn.speaker,
-                "utterance": turn.utterance,
-                "payload": turn.payload,
-            }
-            for turn in session.turns
-        ],
+        "transcript": session.transcript_payload(),
         "planned_mistake": _next_planned_mistake(session),
         "dialogue_phase": session.dialogue_phase,
-        "customer_confusion_events": [
-            {
-                "turn_index": event.turn_index,
-                "type": event.type,
-                "utterance": event.utterance,
-            }
-            for event in session.customer_confusion_events[-3:]
-        ],
+        "customer_confusion_events": session.confusion_events_payload(limit=3),
         "patience": session.patience,
         "trust": session.trust,
     }
@@ -45,8 +31,7 @@ def run_support_agent(agent: SupportAgent, payload: dict) -> SupportTurn:
     return agent.run_turn(payload)
 
 
-def apply_support_output(session: DialogueSession, output: SupportTurn) -> DialogueSession:
+def apply_support_output(session: DialogueSession, output: SupportTurn) -> None:
     append_support_turn(session, output)
-    if output.should_escalate and should_allow_escalation(session.to_state()):
+    if output.should_escalate and should_allow_escalation(session):
         mark_escalated(session)
-    return session

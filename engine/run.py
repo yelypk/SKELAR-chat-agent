@@ -5,15 +5,16 @@ import json
 import random
 import uuid
 
+from agents.providers import build_embeddings_client
 from agents.customer import CustomerAgent
 from agents.judge import JudgeAgent
 from agents.support import SupportAgent
 from dataset.db import DatasetWriter
 from dataset.metrics import compute_balance_report
 from engine.config import load_config
-from engine.runner import AgentBundle, run_dialogue
+from engine.runner import AgentBundle, RuntimeBundle, run_dialogue
 from engine.session import DialogueSession
-from engine.state import DialogueState, TerminationReason
+from engine.state import TerminationReason
 from scenarios.intent_loader import (
     build_customer_view,
     build_support_view,
@@ -23,11 +24,11 @@ from scenarios.intent_loader import (
 from scenarios.persona.generator import generate_persona_seed, generate_support_persona_seed
 
 
-def _build_initial_state(
+def _build_initial_session(
     run_id: str,
     seed: int,
     max_turns: int,
-) -> DialogueState:
+) -> DialogueSession:
     rng = random.Random(seed)
     intents = load_intents()
     intent = sample_intent(intents, rng)
@@ -39,37 +40,23 @@ def _build_initial_state(
     rng.shuffle(planned_pool)
     planned_count = min(2, len(planned_pool))
     planned_mistakes = planned_pool[:planned_count]
-    return {
-        "run_id": run_id,
-        "dialogue_id": str(uuid.uuid4()),
-        "seed": seed,
-        "turn_index": 0,
-        "max_turns": max_turns,
-        "intent": intent,
-        "support_view": build_support_view(intent),
-        "customer_view": build_customer_view(intent, root_cause),
-        "root_cause": root_cause,
-        "persona": persona,
-        "support_persona": support_persona,
-        "dialogue_phase": "greeting",
-        "entropy_params": entropy_params,
-        "planned_mistakes": planned_mistakes,
-        "observed_mistakes": [],
-        "turns": [],
-        "asked_questions": [],
-        "support_proposed_actions": [],
-        "customer_confusion_events": [],
-        "patience": 0,
-        "trust": 0,
-        "resolved": False,
-        "escalated": False,
-        "customer_quit": False,
-        "agent_quit": False,
-        "deadlock_detected": False,
-        "max_turns_reached": False,
-        "termination_reason": None,
-        "client_quality_score": None,
-    }
+    return DialogueSession(
+        run_id=run_id,
+        dialogue_id=str(uuid.uuid4()),
+        seed=seed,
+        turn_index=0,
+        max_turns=max_turns,
+        intent=intent,
+        support_view=build_support_view(intent),
+        customer_view=build_customer_view(intent, root_cause),
+        root_cause=root_cause,
+        persona=persona,
+        support_persona=support_persona,
+        dialogue_phase="greeting",
+        entropy_params=entropy_params,
+        planned_mistakes=planned_mistakes,
+        observed_mistakes=[],
+    )
 
 
 def run_dialogues(num_dialogues: int, seed: int, print_report: bool = False) -> None:
@@ -78,44 +65,50 @@ def run_dialogues(num_dialogues: int, seed: int, print_report: bool = False) -> 
     customer = CustomerAgent(config)
     judge = JudgeAgent(config)
     agents = AgentBundle(support=support, customer=customer, judge=judge)
+    runtime = RuntimeBundle(
+        config=config,
+        embeddings=build_embeddings_client(config),
+    )
     writer = DatasetWriter(config.postgres_dsn)
     run_id = str(uuid.uuid4())
 
     for idx in range(num_dialogues):
-        state = _build_initial_state(
+        session = _build_initial_session(
             run_id=run_id,
             seed=seed + idx,
             max_turns=config.max_turns,
         )
-        session = DialogueSession.from_state(state)
-        final_session = run_dialogue(session, agents, config)
-        final_state = final_session.to_state()
-        termination_reason = final_state.get("termination_reason") or TerminationReason.MAX_TURNS.value
+        final_session = run_dialogue(session, agents, runtime)
+        termination_reason = (
+            final_session.termination_reason or TerminationReason.MAX_TURNS.value
+        )
+        if final_session.judge_output is None or final_session.judge_validation is None:
+            raise RuntimeError("Runner must produce judge output and validation.")
         dialogue_id = writer.write_dialogue(
             {
-                "dialogue_id": final_state["dialogue_id"],
+                "dialogue_id": final_session.dialogue_id,
                 "run_id": run_id,
-                "intent_id": final_state["intent"].intent_id,
-                "hidden_root_cause": final_state["root_cause"],
-                "chaos_level": final_state["persona"].chaos_level,
-                "support_seniority": final_state["support_persona"].seniority,
-                "entropy_params": final_state["entropy_params"],
-                "planned_mistakes": final_state["planned_mistakes"],
-                "observed_mistakes": final_state["observed_mistakes"],
-                "resolved_gt": final_state["resolved"],
+                "intent_id": final_session.intent.intent_id,
+                "hidden_root_cause": final_session.root_cause,
+                "chaos_level": final_session.persona.chaos_level,
+                "support_seniority": final_session.support_persona.seniority,
+                "entropy_params": final_session.entropy_params,
+                "planned_mistakes": final_session.planned_mistakes,
+                "observed_mistakes": final_session.observed_mistakes,
+                "resolved_gt": final_session.resolved,
                 "termination_reason_gt": termination_reason,
-                "client_quality_score": final_state.get("client_quality_score"),
-                "transcript_json": final_state["turns"],
+                "client_quality_score": final_session.client_quality_score,
+                "transcript_json": final_session.transcript_payload(),
             }
         )
         writer.write_judge(
             dialogue_id=dialogue_id,
-            judge_output=final_state["judge_output"],
-            validation=final_state["judge_validation"],
+            judge_output=final_session.judge_output,
+            validation=final_session.judge_validation,
         )
         print(
             f"[{idx + 1}/{num_dialogues}] "
-            f"intent={final_state['intent'].intent_id} termination={termination_reason}"
+            f"intent={final_session.intent.intent_id} termination={termination_reason}"
         )
 
     if print_report:

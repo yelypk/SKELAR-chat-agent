@@ -1,65 +1,23 @@
 from __future__ import annotations
 
-import math
-import re
-from typing import Sequence
-
 from langchain_core.embeddings import Embeddings
 
+from engine.rules.constants import (
+    RESOLUTION_BLOCKERS,
+    RESOLUTION_CONFIRMATIONS,
+    RESOLUTION_EMBEDDING_THRESHOLD,
+    RESOLUTION_LEXICAL_THRESHOLD,
+)
+from engine.rules.vector_utils import cosine_similarity, jaccard_similarity, normalize_tokens
 from engine.session import DialogueSession
 
 
-def _cosine_similarity(a: Sequence[float], b: Sequence[float]) -> float:
-    dot = sum(x * y for x, y in zip(a, b))
-    norm_a = math.sqrt(sum(x * x for x in a))
-    norm_b = math.sqrt(sum(y * y for y in b))
-    if norm_a == 0 or norm_b == 0:
-        return 0.0
-    return dot / (norm_a * norm_b)
-
-
-def _normalize_tokens(text: str) -> set[str]:
-    words = re.findall(r"[a-z0-9]+", text.lower())
-    return {w for w in words if len(w) > 2}
-
-
-def _jaccard_similarity(a: set[str], b: set[str]) -> float:
-    if not a or not b:
-        return 0.0
-    intersection = len(a & b)
-    union = len(a | b)
-    return intersection / union if union else 0.0
-
-
 def _customer_blocks_resolution(text: str) -> bool:
-    return any(
-        token in text
-        for token in (
-            "still",
-            "not working",
-            "didn't help",
-            "same issue",
-            "not fixed",
-            "doesn't work",
-        )
-    )
+    return any(token in text for token in RESOLUTION_BLOCKERS)
 
 
 def _customer_confirms_resolution(text: str) -> bool:
-    return any(
-        token in text
-        for token in (
-            "thanks",
-            "thank you",
-            "that worked",
-            "works now",
-            "fixed",
-            "resolved",
-            "got it",
-            "perfect",
-            "all good",
-        )
-    )
+    return any(token in text for token in RESOLUTION_CONFIRMATIONS)
 
 
 def is_resolved(session: DialogueSession, embeddings: Embeddings) -> bool:
@@ -73,20 +31,18 @@ def is_resolved(session: DialogueSession, embeddings: Embeddings) -> bool:
 
     latest_action = session.support_proposed_actions[-1].lower()
     resolution_paths = session.intent.resolution_paths
-    docs = [latest_action, *resolution_paths]
-    vectors = embeddings.embed_documents(docs)
-    latest_vector = vectors[0]
-    path_vectors = vectors[1:]
+    latest_vector = embeddings.embed_documents([latest_action])[0]
+    path_vectors = session.ensure_resolution_path_vectors(embeddings)
 
     embedding_match = False
     lexical_match = False
-    latest_tokens = _normalize_tokens(latest_action)
+    latest_tokens = normalize_tokens(latest_action)
     for resolution, vector in zip(resolution_paths, path_vectors):
-        sim = _cosine_similarity(latest_vector, vector)
-        jac = _jaccard_similarity(latest_tokens, _normalize_tokens(resolution))
-        if sim >= 0.86:
+        sim = cosine_similarity(latest_vector, vector)
+        jac = jaccard_similarity(latest_tokens, normalize_tokens(resolution))
+        if sim >= RESOLUTION_EMBEDDING_THRESHOLD:
             embedding_match = True
-        if jac >= 0.22:
+        if jac >= RESOLUTION_LEXICAL_THRESHOLD:
             lexical_match = True
         if embedding_match and lexical_match:
             break

@@ -28,20 +28,20 @@ Notes:
 - Persona generation is deterministic for the same seed.
 - Persona card files are not required; generation is on-the-fly.
 
-## `agents/llm.py`
+## `agents/providers.py`, `agents/prompts.py`, `agents/json_protocol.py`
 
 Input:
-- Prompt text
-- Structured payload
-- Target pydantic model
+- Provider config and model name
+- Prompt text and structured payload
+- Target pydantic model schema
 
 Output:
-- Strictly validated model instance
+- Chat/embeddings clients and strictly validated model instances
 
 Notes:
-- Parses JSON-only responses.
-- Retries invalid JSON/schema outputs up to configured limit.
-- Raises `InvalidLLMOutputError` if all attempts fail.
+- `providers.py` builds chat and embeddings clients.
+- `prompts.py` loads prompt files and renders final LLM request text.
+- `json_protocol.py` extracts JSON payload, validates schema, and retries on errors.
 
 ## `agents/support.py`
 
@@ -96,22 +96,22 @@ Notes:
 - Deadlock uses semantic similarity + no-progress checks.
 - Resolved uses rule-based match between support action and intent resolution paths.
 
-## `engine/graph/dialogue_graph.py`
+## `engine/runner.py`
 
 Input:
-- Initial `DialogueState`
-- Agent wrappers and config
+- Initial `DialogueSession`
+- Agent bundle and runtime bundle (config + embeddings)
 
 Output:
-- Final `DialogueState` with:
+- Final `DialogueSession` with:
   - full transcript
   - terminal reason
   - judge output
   - judge-validation output
 
 Notes:
-- Graph executes deterministic routing only.
-- Stop checks run after each speaker turn.
+- Runner executes a deterministic while-loop.
+- Stop checks run after each speaker turn via `finalize_turn`.
 
 ## `engine/orchestrator/judge_validation.py`
 
@@ -139,6 +139,7 @@ Output:
 
 Notes:
 - Dialogue row is the canonical anchor; others reference `dialogue_id`.
+- Database schema is managed by Alembic migrations, not by runtime `create_all`.
 
 ## `dataset/metrics.py`
 

@@ -11,14 +11,7 @@ def build_customer_payload(session: DialogueSession) -> dict:
         "intent": session.intent.intent_id,
         "persona_seed_prompt": session.persona.persona_seed_prompt,
         "customer_context": session.customer_view,
-        "transcript": [
-            {
-                "speaker": turn.speaker,
-                "utterance": turn.utterance,
-                "payload": turn.payload,
-            }
-            for turn in session.turns
-        ],
+        "transcript": session.transcript_payload(),
         "dialogue_phase": session.dialogue_phase,
         "patience": session.patience,
         "trust": session.trust,
@@ -29,8 +22,7 @@ def run_customer_agent(agent: CustomerAgent, payload: dict) -> CustomerTurn:
     return agent.run_turn(payload)
 
 
-def apply_customer_output(session: DialogueSession, output: CustomerTurn) -> DialogueSession:
+def apply_customer_output(session: DialogueSession, output: CustomerTurn) -> None:
     append_customer_turn(session, output)
     if output.should_quit:
         mark_customer_quit(session)
-    return session

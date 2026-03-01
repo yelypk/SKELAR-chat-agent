@@ -9,19 +9,11 @@ def build_customer_rating_payload(session: DialogueSession) -> dict:
         "intent": session.intent.intent_id,
         "persona_seed_prompt": session.persona.persona_seed_prompt,
         "termination_reason": session.termination_reason,
-        "transcript": [
-            {
-                "speaker": turn.speaker,
-                "utterance": turn.utterance,
-                "payload": turn.payload,
-            }
-            for turn in session.turns
-        ],
+        "transcript": session.transcript_payload(),
     }
 
 
-def apply_customer_rating(session: DialogueSession, agent: CustomerAgent) -> DialogueSession:
+def apply_customer_rating(session: DialogueSession, agent: CustomerAgent) -> None:
     payload = build_customer_rating_payload(session)
     rating = agent.rate_dialogue(payload)
     session.client_quality_score = rating.client_quality_score
-    return session

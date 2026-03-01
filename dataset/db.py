@@ -97,7 +97,6 @@ judge_validations = Table(
 class DatasetWriter:
     def __init__(self, dsn: str) -> None:
         self._engine = create_engine(dsn, future=True)
-        metadata.create_all(self._engine)
 
     def write_dialogue(self, payload: dict) -> uuid.UUID:
         dialogue_id = uuid.UUID(payload["dialogue_id"])

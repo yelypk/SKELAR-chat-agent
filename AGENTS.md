@@ -14,7 +14,7 @@ One evaluator:
 
 ## Architecture
 
-Dialogue is controlled by LangGraph.
+Dialogue is controlled by a deterministic Python runner.
 LLMs generate language only.
 
 Ground truth is private to the customer simulator

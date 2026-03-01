@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from engine.state import (
     DialogueState,
@@ -12,6 +12,9 @@ from engine.state import (
     SupportPersonaSeed,
     SupportView,
 )
+
+if TYPE_CHECKING:
+    from langchain_core.embeddings import Embeddings
 
 
 @dataclass
@@ -61,10 +64,41 @@ class DialogueSession:
     client_quality_score: int | None = None
     judge_output: dict[str, Any] | None = None
     judge_validation: JudgeValidationData | None = None
+    resolution_path_vectors: list[list[float]] | None = None
 
     @property
     def is_terminal(self) -> bool:
         return self.termination_reason is not None
+
+    @property
+    def support_turn_count(self) -> int:
+        return len([turn for turn in self.turns if turn.speaker == "support"])
+
+    def transcript_payload(self) -> list[dict[str, Any]]:
+        return [
+            {
+                "speaker": turn.speaker,
+                "utterance": turn.utterance,
+                "payload": turn.payload,
+            }
+            for turn in self.turns
+        ]
+
+    def confusion_events_payload(self, limit: int | None = None) -> list[dict[str, Any]]:
+        events = self.customer_confusion_events[-limit:] if limit else self.customer_confusion_events
+        return [
+            {
+                "turn_index": event.turn_index,
+                "type": event.type,
+                "utterance": event.utterance,
+            }
+            for event in events
+        ]
+
+    def ensure_resolution_path_vectors(self, embeddings: "Embeddings") -> list[list[float]]:
+        if self.resolution_path_vectors is None:
+            self.resolution_path_vectors = embeddings.embed_documents(self.intent.resolution_paths)
+        return self.resolution_path_vectors
 
     @classmethod
     def from_state(cls, state: DialogueState) -> "DialogueSession":
@@ -116,6 +150,7 @@ class DialogueSession:
             client_quality_score=state.get("client_quality_score"),
             judge_output=deepcopy(state.get("judge_output")),
             judge_validation=deepcopy(state.get("judge_validation")),
+            resolution_path_vectors=None,
         )
 
     def to_state(self) -> DialogueState:

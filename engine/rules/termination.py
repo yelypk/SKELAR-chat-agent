@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from engine.rules.constants import (
+    SUPPORT_CLOSING_GOODBYE_MARKERS,
+    SUPPORT_CLOSING_OFFER_MARKERS,
+)
 from engine.session import DialogueSession
 from engine.state import TerminationReason
 
@@ -13,25 +17,8 @@ def _has_support_closing_turn(session: DialogueSession) -> bool:
         if turn.speaker != "support":
             continue
         text = turn.utterance.lower()
-        has_offer = any(
-            token in text
-            for token in (
-                "anything else",
-                "else i can help",
-                "can i help",
-                "other issue",
-            )
-        )
-        has_goodbye = any(
-            token in text
-            for token in (
-                "goodbye",
-                "have a nice day",
-                "have a great day",
-                "take care",
-                "bye",
-            )
-        )
+        has_offer = any(token in text for token in SUPPORT_CLOSING_OFFER_MARKERS)
+        has_goodbye = any(token in text for token in SUPPORT_CLOSING_GOODBYE_MARKERS)
         return has_offer or has_goodbye
     return False
 

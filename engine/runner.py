@@ -5,8 +5,9 @@ from dataclasses import dataclass
 from agents.customer import CustomerAgent
 from agents.judge import JudgeAgent
 from agents.json_protocol import InvalidLLMOutputError
-from agents.providers import build_embeddings_client
 from agents.support import SupportAgent
+from langchain_core.embeddings import Embeddings
+
 from engine.config import AppConfig
 from engine.post_turn import finalize_turn
 from engine.session import DialogueSession
@@ -32,13 +33,17 @@ class AgentBundle:
     judge: JudgeAgent
 
 
+@dataclass(frozen=True)
+class RuntimeBundle:
+    config: AppConfig
+    embeddings: Embeddings
+
+
 def run_dialogue(
     session: DialogueSession,
     agents: AgentBundle,
-    config: AppConfig,
+    runtime: RuntimeBundle,
 ) -> DialogueSession:
-    embeddings = build_embeddings_client(config)
-
     while not session.is_terminal:
         try:
             customer_payload = build_customer_payload(session)
@@ -48,7 +53,7 @@ def run_dialogue(
             break
 
         apply_customer_output(session, customer_output)
-        finalize_turn(session, embeddings, config)
+        finalize_turn(session, runtime.embeddings, runtime.config)
         if session.is_terminal:
             break
 
@@ -60,7 +65,7 @@ def run_dialogue(
             break
 
         apply_support_output(session, support_output)
-        finalize_turn(session, embeddings, config)
+        finalize_turn(session, runtime.embeddings, runtime.config)
 
     try:
         apply_customer_rating(session, agents.customer)

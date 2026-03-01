@@ -1,21 +1,13 @@
 from __future__ import annotations
 
 from engine.orchestrator.escalation_policy import should_allow_escalation
-from engine.orchestrator.text_similarity import jaccard_similarity, normalize_tokens
-from engine.session import DialogueSession
-
-FORBIDDEN_ACTION_SIM_THRESHOLD = 0.22
-REQUIRED_QUESTION_SIM_THRESHOLD = 0.15
-RUDE_MARKERS = frozenset(
-    {
-        "stupid",
-        "dumb",
-        "your fault",
-        "nonsense",
-        "can't you read",
-        "stop wasting",
-    }
+from engine.rules.constants import (
+    FORBIDDEN_ACTION_SIM_THRESHOLD,
+    REQUIRED_QUESTION_SIM_THRESHOLD,
+    RUDE_MARKERS,
 )
+from engine.rules.vector_utils import jaccard_similarity, normalize_tokens
+from engine.session import DialogueSession
 
 
 def _contains_rude_tone(session: DialogueSession) -> bool:
@@ -77,7 +69,7 @@ def _support_attempted_escalation(session: DialogueSession) -> bool:
 def _unnecessary_escalation(session: DialogueSession) -> bool:
     if not _support_attempted_escalation(session):
         return False
-    return not should_allow_escalation(session.to_state())
+    return not should_allow_escalation(session)
 
 
 def detect_observed_mistakes(session: DialogueSession) -> list[str]:
