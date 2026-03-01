@@ -39,11 +39,5 @@ def apply_stop_conditions(
         window=deadlock_window,
         threshold=deadlock_threshold,
     )
-    if (
-        not session.resolved
-        and not session.escalated
-        and (session.deadlock_detected or session.max_turns_reached)
-    ):
-        session.escalated = True
     session.termination_reason = compute_termination_rule(session)
     state.update(session.to_state())

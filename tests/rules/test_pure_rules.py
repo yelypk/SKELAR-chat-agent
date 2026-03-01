@@ -97,7 +97,7 @@ class TerminationRuleTests(unittest.TestCase):
 
 
 class FinalizeTurnTests(unittest.TestCase):
-    def test_finalize_sets_deadlock_and_escalation(self) -> None:
+    def test_finalize_sets_deadlock_without_forced_escalation(self) -> None:
         session = _base_session()
         session.turn_index = 4
         session.turns = [
@@ -126,7 +126,8 @@ class FinalizeTurnTests(unittest.TestCase):
         )
         finalize_turn(session, FakeEmbeddings(), config)
         self.assertTrue(session.deadlock_detected)
-        self.assertTrue(session.escalated)
+        self.assertFalse(session.escalated)
+        self.assertEqual(session.termination_reason, "deadlock")
 
 
 if __name__ == "__main__":

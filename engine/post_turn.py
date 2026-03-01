@@ -24,12 +24,6 @@ def finalize_turn(
         window=config.deadlock_window,
         threshold=config.deadlock_similarity_threshold,
     )
-    if (
-        not session.resolved
-        and not session.escalated
-        and (session.deadlock_detected or session.max_turns_reached)
-    ):
-        session.escalated = True
     session.termination_reason = compute_termination(session)
     session.observed_mistakes = detect_observed_mistakes(session)
     session.dialogue_phase = compute_dialogue_phase(session)
