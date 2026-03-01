@@ -160,6 +160,26 @@ class TurnRecord(TypedDict):
     payload: dict[str, Any]
 
 
+class SupportView(TypedDict, total=False):
+    symptoms: list[str]
+    required_questions: list[str]
+    resolution_paths: list[str]
+    forbidden_actions: list[str]
+    escalation_rules: list[str]
+
+
+class JudgeValidationData(TypedDict):
+    resolved_match: bool
+    termination_match: bool
+    validated_mistakes: list[str]
+    missed_mistakes: list[str]
+    extra_mistakes: list[str]
+    precision: float
+    recall: float
+    f1: float
+    notes: str
+
+
 class DialogueState(TypedDict):
     run_id: str
     dialogue_id: str
@@ -167,7 +187,7 @@ class DialogueState(TypedDict):
     turn_index: int
     max_turns: int
     intent: IntentCard
-    support_view: dict[str, Any]
+    support_view: SupportView
     customer_view: dict[str, Any]
     root_cause: str
     persona: PersonaSeed
@@ -191,4 +211,4 @@ class DialogueState(TypedDict):
     termination_reason: NotRequired[str | None]
     client_quality_score: NotRequired[int | None]
     judge_output: NotRequired[dict[str, Any]]
-    judge_validation: NotRequired[dict[str, Any]]
+    judge_validation: NotRequired[JudgeValidationData]
