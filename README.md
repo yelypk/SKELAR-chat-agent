@@ -1,157 +1,81 @@
-# SKELAR-chat-agent
+# SKELAR Chat Agent
 
-Synthetic support dialogue simulator for evaluation data generation.
+Synthetic support-dialogue simulator for generating evaluation-ready datasets.
 
-This repository contains:
+## What it does
+This project runs **self-play customer support conversations** between three roles:
+- **Customer agent** - knows the hidden root cause and reveals details gradually.
+- **Support agent** - tries to solve the issue using intent-card knowledge.
+- **Judge agent** - scores the finished dialogue and compares its verdict to deterministic ground truth.
 
-- **Intent cards**: domain support knowledge in `scenarios/intents/`
-- **Prompts**: role instructions for LLM calls in `prompts/`
-- **Infrastructure**: Docker Compose for Postgres + Redis
+The result is a reproducible pipeline for generating:
+- labeled support dialogues,
+- judge evaluation outputs,
+- CSV datasets for training or benchmarking evaluators.
 
-LLM provider is configurable via `.env` (`ollama` or `openai`).
+## Why it is useful
+Real support data is expensive, sensitive, and hard to label consistently. This project creates a controlled environment where dialogue flow is realistic enough for experimentation, while labels and stop conditions stay code-driven.
 
-## Quickstart
+## Tech stack
+- **Python**
+- **LangGraph / LangChain** orchestration
+- **PostgreSQL** for dialogue and evaluation storage
+- **Redis** for local infrastructure
+- **Ollama or OpenAI** as the LLM backend
+- Optional **pgvector** profile for vector-enabled Postgres
 
-### 1) Start infrastructure
-
+## Quick start
 ```bash
+# 1) Start local infrastructure
 docker compose up -d
-```
 
-Optional: Postgres with pgvector (different port to avoid conflicts):
+# 2) Create environment file
+cp .env.example .env
 
-```bash
-docker compose --profile pgvector up -d
-```
-
-### 2) Configure environment
-
-```bash
-copy .env.example .env
-```
-
-### 3) Choose LLM provider in `.env`
-
-Set provider and models in `.env`:
-
-- For **Ollama**:
-  - `LLM_PROVIDER=ollama`
-  - `OLLAMA_BASE_URL=http://localhost:11434`
-  - `SUPPORT_MODEL=qwen3:30b-thinking`
-  - `CUSTOMER_MODEL=qwen3:30b-thinking`
-  - `JUDGE_MODEL=qwen3:30b-thinking`
-  - `EMBEDDING_MODEL=nomic-embed-text`
-  - `LLM_TIMEOUT_SECONDS=180`
-- For **OpenAI**:
-  - `LLM_PROVIDER=openai`
-  - `OPENAI_API_KEY=<your_api_key>`
-  - `OPENAI_BASE_URL=` (optional)
-  - `SUPPORT_MODEL=gpt-4o-mini`
-  - `CUSTOMER_MODEL=gpt-4o-mini`
-  - `JUDGE_MODEL=gpt-4o-mini`
-  - `EMBEDDING_MODEL=text-embedding-3-small`
-  - `LLM_TIMEOUT_SECONDS=180`
-
-For external DB tools (for example TablePlus), use:
-- `postgresql://app:app@localhost:5432/skelar_chat_agent`
-
-If you use Ollama, ensure it is running locally and pull required models:
-
-```bash
-ollama pull qwen3:30b-thinking
-ollama pull nomic-embed-text
-```
-
-### 4) Install Python dependencies
-
-```bash
+# 3) Install dependencies
 python -m venv .venv
-.venv\Scripts\activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 python -m pip install -U pip
 pip install -r requirements-dev.txt
-```
 
-### 5) Run simulator
+# 4) Choose your provider in .env
+# LLM_PROVIDER=ollama
+# or
+# LLM_PROVIDER=openai
 
-```bash
+# 5) Run a small batch
 python -m engine.run --num-dialogues 3 --seed 42
 ```
 
-This command runs deterministic self-play sessions and writes:
-- dialogue labels in table `dialogues`
-- judge outputs in table `judge_evaluations`
-- judge checks in table `judge_validations`
-
-Optional balance report for the generated run:
+## Outputs
+A run writes data into Postgres and can later export CSV files for downstream evaluation workflows:
 
 ```bash
-python -m engine.run --num-dialogues 20 --seed 42 --report-balance
+python generate.py --after-dialogue-id <existing-dialogue-uuid>
+python analyze.py --after-dialogue-id <existing-dialogue-uuid>
 ```
 
-### 6) Apply database migrations (Alembic)
+## Hackathon demo flow
+1. Start Docker services.
+2. Configure one LLM provider.
+3. Generate a few synthetic dialogues.
+4. Export judge-facing CSVs.
+5. Show how deterministic labels and judge outputs can be compared.
 
-Use Alembic instead of relying only on runtime `create_all`:
+## Important notes
+- `generate.py` and `analyze.py` require an **existing** `dialogue_id` as an anchor.
+- The simulator is a **dataset-generation system**, not a production support bot.
+- If you use the `pgvector` Docker profile, update the DSN to the vector-enabled Postgres port.
 
-```bash
-alembic upgrade head
+## Project structure
+```text
+agents/      role-specific LLM wrappers
+engine/      orchestration, state, dialogue graph
+scenarios/   support intents and persona generation
+dataset/     database persistence and metrics
+prompts/     role instructions
+docs/        architecture and development notes
 ```
 
-### 7) Export judge CSV datasets (`generate.py` and `analyze.py`)
-
-Two root scripts prepare dedicated CSV files for judge training and evaluation.
-
-`generate.py` creates the judge-visible training dataset:
-
-```bash
-python generate.py --after-dialogue-id c3fb87a8-28f5-4769-81b8-b84a64634a12
-```
-
-Output file:
-- `dataset_outputs/judge_training_dataset.csv`
-
-Columns (only data visible to judge):
-- `intent`
-- `client_quality_score`
-- `transcript`
-
-`analyze.py` creates judge outputs + judge performance evaluation for the same filtered dialogue slice:
-
-```bash
-python analyze.py --after-dialogue-id c3fb87a8-28f5-4769-81b8-b84a64634a12
-```
-
-Output file:
-- `dataset_outputs/judge_results_and_eval.csv`
-
-Columns:
-- `dialogue_id`, `resolved`, `satisfaction`, `quality_score`, `agent_mistakes`, `termination_reason`, `rationale`
-- `resolved_match`, `termination_match`, `validated_mistakes`, `precision`, `recall`, `validation_notes`
-
-Both scripts apply the same filters:
-- dialogues strictly after provided `dialogue_id` (ordered by `created_at`, then `id`)
-- exclude rows where `termination_reason_gt = max_turns`
-
-Optional arguments for both scripts:
-- `--dsn` to override DB connection string
-- `--output-csv` to override output file path
-
-## Development docs
-
-See:
-
-- `docs/DEVELOPMENT.md`
-- `docs/INTENT_CARDS.md`
-- `docs/ARCHITECTURE.md`
-- `docs/DATABASE_SCHEMA.md`
-- `docs/MODULE_IO.md`
-
-## Repo structure
-
-- `.cursor/rules/`: persistent Cursor rules (workflow, schema constraints, language policy)
-- `scenarios/intents/`: intent cards (YAML)
-- `scenarios/persona/`: on-the-fly persona seed generator for chaos mode
-- `prompts/`: LLM prompts (Markdown)
-- `engine/`: LangGraph loop, state, and deterministic stop-condition orchestrator
-- `agents/`: role wrappers (customer, support, judge)
-- `dataset/`: Postgres persistence layer
-- `docs/`: development documentation
+## One-line pitch
+**A reproducible synthetic customer-support simulator that generates dialogues, judge scores, and evaluation datasets for LLM benchmarking.**
