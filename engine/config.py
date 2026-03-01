@@ -22,6 +22,15 @@ class AppConfig:
     deadlock_similarity_threshold: float
     retries_per_llm_call: int
     llm_timeout_seconds: int
+    allow_llm_escalation: bool
+    escalation_trace_enabled: bool
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
 def load_config() -> AppConfig:
@@ -54,4 +63,6 @@ def load_config() -> AppConfig:
         ),
         retries_per_llm_call=int(os.getenv("RETRIES_PER_LLM_CALL", "2")),
         llm_timeout_seconds=int(os.getenv("LLM_TIMEOUT_SECONDS", "180")),
+        allow_llm_escalation=_env_bool("ALLOW_LLM_ESCALATION", True),
+        escalation_trace_enabled=_env_bool("ESCALATION_TRACE_ENABLED", True),
     )

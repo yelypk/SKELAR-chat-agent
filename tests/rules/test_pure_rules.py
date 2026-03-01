@@ -123,6 +123,8 @@ class FinalizeTurnTests(unittest.TestCase):
             deadlock_similarity_threshold=0.92,
             retries_per_llm_call=2,
             llm_timeout_seconds=60,
+            allow_llm_escalation=True,
+            escalation_trace_enabled=False,
         )
         finalize_turn(session, FakeEmbeddings(), config)
         self.assertTrue(session.deadlock_detected)

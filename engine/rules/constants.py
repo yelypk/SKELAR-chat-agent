@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-ESCALATION_RULE_SIM_THRESHOLD = 0.12
+ESCALATION_RULE_SIM_THRESHOLD = 0.35
 FORBIDDEN_ACTION_SIM_THRESHOLD = 0.22
 REQUIRED_QUESTION_SIM_THRESHOLD = 0.15
 RESOLUTION_EMBEDDING_THRESHOLD = 0.86
@@ -13,8 +13,6 @@ HIGH_RISK_ESCALATION_MARKERS = (
     "security",
     "legal",
     "chargeback",
-    "supervisor",
-    "manager",
 )
 
 RESOLUTION_BLOCKERS = (

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 
 from agents.customer import CustomerAgent
@@ -24,6 +25,8 @@ from engine.steps.support_step import (
     build_support_payload,
     run_support_agent,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -64,8 +67,17 @@ def run_dialogue(
             session.termination_reason = TerminationReason.LLM_INVALID_JSON.value
             break
 
-        apply_support_output(session, support_output)
+        apply_support_output(session, support_output, runtime.config)
         finalize_turn(session, runtime.embeddings, runtime.config)
+        if runtime.config.escalation_trace_enabled:
+            logger.info(
+                "escalation_trace=%s",
+                {
+                    "turn_index": session.turn_index,
+                    "termination_reason": session.termination_reason,
+                    **(session.last_escalation_decision or {}),
+                },
+            )
 
     try:
         apply_customer_rating(session, agents.customer)

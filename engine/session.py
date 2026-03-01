@@ -65,6 +65,7 @@ class DialogueSession:
     judge_output: dict[str, Any] | None = None
     judge_validation: JudgeValidationData | None = None
     resolution_path_vectors: list[list[float]] | None = None
+    last_escalation_decision: dict[str, Any] | None = None
 
     @property
     def is_terminal(self) -> bool:
